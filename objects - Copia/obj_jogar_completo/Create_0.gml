@@ -1,0 +1,1 @@
+hovered = false; // variável de controle
