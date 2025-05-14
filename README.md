@@ -1,1 +1,1 @@
-# subtensao
+# subtensao: Jogo desenvolvido por estudantes
