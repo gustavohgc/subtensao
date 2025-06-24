@@ -1,0 +1,66 @@
+cam = view_camera[0];
+cam_width = camera_get_view_width(cam);
+cam_height = camera_get_view_height(cam);
+
+var _move = keyboard_check(vk_right) - keyboard_check(vk_left);
+var _jump = keyboard_check_pressed(vk_space) || keyboard_check_pressed(vk_up);
+
+hsp = _move * move_speed;
+if (hsp != 0) facing = sign(hsp);
+
+if (_jump && grounded) {
+    vsp = -jump_power;
+    grounded = false;
+}
+vsp += gravity;
+if (vsp > max_fall_speed) vsp = max_fall_speed;
+if (place_meeting(x + hsp, y, obj_solid)) {
+    while (!place_meeting(x + sign(hsp), y, obj_solid)) {
+        x += sign(hsp);
+    }
+    hsp = 0;
+}
+if (place_meeting(x, y + vsp, obj_solid)) {
+    while (!place_meeting(x, y + sign(vsp), obj_solid)) {
+        y += sign(vsp);
+    }
+    vsp = 0;
+    if (sign(vsp) > 0) grounded = true;
+}
+x += hsp;
+y += vsp;
+update_camera();
+function update_camera() {
+  var cam_x = camera_get_view_x(cam);
+    var cam_y = camera_get_view_y(cam);
+    
+    var target_x = x - (cam_width / 2) + (facing * cam_width * 0.2);
+    var target_y = y - (cam_height / 2);
+    
+    var smooth_speed = 0.1;
+    var new_x = lerp(cam_x, target_x, smooth_speed);
+    var new_y = lerp(cam_y, target_y, smooth_speed);
+    
+    new_x = clamp(new_x, 0, room_width - cam_width);
+    new_y = clamp(new_y, 0, room_height - cam_height);
+    
+    camera_set_view_pos(cam, new_x, new_y);
+}
+var num_layers = 3;
+parallax_layers = array_create(num_layers);
+parallax_layers[0] = layer_create("Background_Far", 0.3); // 30% scroll speed
+parallax_layers[1] = layer_create("Background_Mid", 0.6); // 60% scroll speed
+parallax_layers[2] = layer_create("Background_Near", 0.9); // 90% scroll speed
+layer_sprite_create(parallax_layers[0], 0, 0, spr_background_far);
+layer_sprite_create(parallax_layers[1], 0, 0, spr_background_mid);
+layer_sprite_create(parallax_layers[2], 0, 0, spr_background_near);
+
+var cam_x = camera_get_view_x(view_camera[0]);
+var base_x = cam_x / room_width; // Normalized camera position
+
+for (var i = 0; i < array_length(parallax_layers); i++) {
+    var layer = parallax_layers[i];
+    var scroll_speed = layer_get_parallax(layer)[0];
+ var new_x = -base_x * (room_width * (1 - scroll_speed));
+  layer_x(layer, new_x);
+}
