@@ -1,0 +1,10 @@
+if (keyboard_check(vk_right) || keyboard_check(ord('D'))) {
+    x += velocidade;
+}
+if (keyboard_check(vk_left) || keyboard_check(ord('A'))) {
+    x -= velocidade;
+}
+var margem_x = view_wport[0] / 2;
+var nova_view_x = x - margem_x;
+nova_view_x = clamp(nova_view_x, 0, room_width - view_wport[0]);
+view_xport[0] = nova_view_x;
